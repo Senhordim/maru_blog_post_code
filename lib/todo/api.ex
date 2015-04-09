@@ -4,7 +4,8 @@ defmodule Todo.Api do
   namespace :tasks do
     desc "get all tasks"
     get do
-      %{ tasks: "All tasks" } |> json
+      #%{ tasks: "All tasks" } |> json
+      Todo.AgentWorker.get |> json
     end
 
     desc "creates a task"
@@ -13,13 +14,13 @@ defmodule Todo.Api do
       requires :completed, type: Boolean, default: false
     end
     post do
-      %{description: params[:description], completed: params[:completed], operation: "create"} |> json
+      Todo.AgentWorker.insert(params) |> json
     end
 
     route_param :id do
       desc "get a task by id"
       get do
-        %{ task: params[:id] } |> json
+        Todo.AgentWorker.get(params[:id]) |> json
       end
 
       desc "updates a task"
@@ -29,12 +30,16 @@ defmodule Todo.Api do
         at_least_one_of [:completed, :description]
       end
       put do
-        %{id: params[:id], description: params[:description], completed: params[:completed], operation: "update"} |> json
+        #IO.puts params
+        #IO.puts params[:id]
+        Todo.AgentWorker.update(params) |> json
+        #%{id: params[:id], description: params[:description], completed: params[:completed], operation: "update"} |> json
       end
 
       desc "deletes a task"
       delete do
-        %{id: params[:id]} |> json
+        Todo.AgentWorker.delete(params[:id]) |> json
+        #%{id: params[:id]} |> json
       end
     end
   end
